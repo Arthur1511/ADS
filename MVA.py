@@ -9,7 +9,7 @@ def mva_exato(N, Z, K, Si, Vi):
     R = 0
     X0 = 0
 
-    for n in range(N):
+    for n in range(N + 1):
         Ri = (Si * (1 + Ni))
 
         R = sum(Ri * Vi)
@@ -64,4 +64,4 @@ Vi = np.array([25, 20, 4])
 
 mva_aprox = mva_aproximado(N, Z, K, Si, Vi, 0.01)
 
-mva_exa = mva_exato(N + 1, Z, K, Si, Vi)
+mva_exa = mva_exato(N, Z, K, Si, Vi)
