@@ -9,6 +9,9 @@ def mva_exato(N, Z, K, Si, Vi):
     R = 0
     X0 = 0
 
+    x0_list = np.empty(N+1)
+    r_list = np.empty(N+1)
+
     for n in range(N + 1):
         Ri = (Si * (1 + Ni))
 
@@ -20,20 +23,26 @@ def mva_exato(N, Z, K, Si, Vi):
 
         Ui = X0 * Vi * Si
 
+        x0_list.itemset(n, round(X0, 3))
+        r_list.itemset(n, round(R, 3))
+
         print("iter=", n, "Ri=", np.round(Ri, 3), "R=", round(R, 3), "X0=", round(X0, 3), "Ni=", np.round(Ni, 3), "Ui=",
               np.round(Ui, 3))
 
-    return X0, Ni, Ri, R, Ui
+    return x0_list, r_list
 
 
 def mva_aproximado(N, Z, K, Si, Vi, e):
-    Ni = np.array([float(N / K) for i in range(K)])
+    Ni = np.array([float(N / K) for _ in range(K)])
     Ri = np.zeros(K)
     Ui = np.zeros(K)
     Ni_antigo = np.zeros(K)
     R = 0
     X0 = 0
     n = 0
+
+    x0_list = np.empty(N + 1)
+    r_list = np.empty(N + 1)
 
     while max(abs(Ni - Ni_antigo)) > e:
         Ri = Si * (1 + (((N - 1) / N) * Ni))
@@ -48,20 +57,29 @@ def mva_aproximado(N, Z, K, Si, Vi, e):
 
         Ui = X0 * Vi * Si
 
+        x0_list.itemset(n, round(X0, 3))
+        r_list.itemset(n, round(R, 3))
+
         print("iter=", n, "Ri=", np.round(Ri, 3), "R=", round(R, 3), "X0=", round(X0, 3), "Ni=", np.round(Ni, 3), "Ui=",
               np.round(Ui, 3))
 
         n = n + 1
 
-    return X0, Ni, Ri, R, Ui
+    return x0_list, r_list
 
 
-N = 30
-Z = 5
+N = 50
+Z = 10
 K = 3
-Si = np.array([0.04, 0.03, 0.025])
-Vi = np.array([25, 20, 4])
+Si = np.array([1.5, 4, 4/3])
+Vi = np.array([7, 1.5, 4.5])
 
-mva_aprox = mva_aproximado(N, Z, K, Si, Vi, 0.01)
+# K = 2
+# Si = np.array([1.5, 4])
+# Vi = np.array([4, 3])
 
-mva_exa = mva_exato(N, Z, K, Si, Vi)
+# mva_aprox = mva_aproximado(N, Z, K, Si, Vi, 0.01)
+
+# x0, r = mva_exato(N, Z, K, Si, Vi)
+#
+# print(x0)
