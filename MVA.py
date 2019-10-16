@@ -43,6 +43,7 @@ def mva_aproximado(N, Z, K, Si, Vi, e):
 
     x0_list = np.empty(N + 1)
     r_list = np.empty(N + 1)
+    np.ap
 
     while max(abs(Ni - Ni_antigo)) > e:
         Ri = Si * (1 + (((N - 1) / N) * Ni))
