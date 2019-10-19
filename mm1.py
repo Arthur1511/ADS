@@ -10,6 +10,10 @@ def p0_jobs(intensidade_de_trafego):
 
 
 def pN_jobs(intensidade_de_trafego, n):
+    return (1 - intensidade_de_trafego) * intensidade_de_trafego ** n
+
+
+def pN_or_more_jobs(intensidade_de_trafego, n):
     return intensidade_de_trafego ** n
 
 
@@ -59,3 +63,25 @@ def cdf_tempo_espera(tempo_espera, taxa_servico, p0, intensidade_de_trafego):
 
 def q_perc_temp_espera(q, taxa_servico, p0, intensidade_de_trafego):
     return (1 / (taxa_servico * p0)) * math.log((100 * intensidade_de_trafego) / (100 - q))
+
+
+taxa_chegada = 240
+taxa_servico = 0.5
+
+intens_traf = intensidade_de_trafego(taxa_chegada, taxa_servico)
+
+print("Utilização/Intensidade de Trafego", round(intens_traf, 2))
+
+p0 = p0_jobs(intens_traf)
+
+temp_resp = tempo_medio_resposta(taxa_servico, p0)
+
+print("Tempo de resposta:", round(temp_resp, 2))
+
+print("Num de Jobs:", round(numero_medio_jobs(intens_traf), 2))
+
+print("Prob k jobs:", round(pN_or_more_jobs(intens_traf, 11), 2))
+
+print("q percentil tempo de resposta:", round(q_perc_temp_resp(90, taxa_servico, p0), 2))
+
+print("q percentil tempo de espera:", round(q_perc_temp_espera(90, taxa_servico, p0, intens_traf), 2))

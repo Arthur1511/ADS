@@ -21,26 +21,26 @@ def pN_jobs_mmm(intensidade_de_trafego_mmm, p0, n, m):
         return (((intensidade_de_trafego_mmm ** n) * (m ** m)) / (math.factorial(m))) * p0
 
 
-def p0_jobs(intensidade_de_trafego_mmm, n, m):
+def p0_jobs(intensidade_de_trafego_mmm, m):
     return 1 / (1 + (
             ((m * intensidade_de_trafego_mmm) ** m) / (math.factorial(m) * (1 - intensidade_de_trafego_mmm))) + sum(
-        [((m * intensidade_de_trafego_mmm) ** n) / (math.factorial(n)) for i in range(m)]))
+        [((m * intensidade_de_trafego_mmm) ** n) / (math.factorial(n)) for n in range(m)]))
 
 
 def proba_espera(intensidade_de_trafego_mmm, p0, m):
-    return (p0 * ((m * intensidade_de_trafego_mmm) ** m) / (math.factorial(m) * (1 - intensidade_de_trafego_mmm)))
+    return p0 * ((m * intensidade_de_trafego_mmm) ** m) / (math.factorial(m) * (1 - intensidade_de_trafego_mmm))
 
 
 def num_medio_jobs_fila(intensidade_de_trafego_mmm, proba_espera):
-    return ((intensidade_de_trafego_mmm * proba_espera) / (1 - intensidade_de_trafego_mmm))
+    return (intensidade_de_trafego_mmm * proba_espera) / (1 - intensidade_de_trafego_mmm)
 
 
 def num_medio_jobs_servico(intensidade_de_trafego_mmm, m):
     return m * intensidade_de_trafego_mmm
 
 
-def num_jobs_sistema(num_jobs_fila, num_jobs_servico):
-    return num_jobs_fila + num_jobs_servico
+def num_jobs_sistema(intensidade_trafego, proba_espera, m):
+    return ((intensidade_trafego * proba_espera) / (1 - intensidade_trafego)) + m * intensidade_trafego
 
 
 def var_num_medio_jobs_sistema(intensidade_de_trafego_mmm, proba_espera, m):
@@ -64,7 +64,6 @@ def tempo_medio_espera(proba_espera, intensidade_de_trafego, taxa_de_servico, m)
 
 
 def cdf_tempo_resp(taxa_de_servico, temp_resp, intensidade_de_trafego, proba_espera, m):
-
     if round(intensidade_de_trafego, 3) != round((m - 1) / m, 3):
         return 1 - math.exp(taxa_de_servico * temp_resp) - (
                 proba_espera / (1 - m + m * intensidade_de_trafego)) * math.exp(
@@ -75,7 +74,41 @@ def cdf_tempo_resp(taxa_de_servico, temp_resp, intensidade_de_trafego, proba_esp
 
 
 def q_percentil_tempo_espera(taxa_servico, intensidade_de_trafego, proba_espera, m, q):
-
-    calc = (1/(m*taxa_servico*(1-intensidade_de_trafego)))*math.log((100*proba_espera)/(100-q))
+    calc = (1 / (m * taxa_servico * (1 - intensidade_de_trafego))) * math.log((100 * proba_espera) / (100 - q))
 
     return max(0, calc)
+
+
+taxa_chegada = 30
+
+taxa_servico = 1 / 0.05
+
+m = 3
+
+utilizacao = intensidade_de_trafego_mmm(taxa_chegada, taxa_servico, m)
+
+print("Utilização:", round(utilizacao, 2))
+
+p0 = p0_jobs(utilizacao, 3)
+
+print("p0:", round(p0, 2))
+
+p_espera = proba_espera(utilizacao, p0, m)
+
+print("Probabilidade de Espera:", round(p_espera, 2))
+
+n_jobs = num_jobs_sistema(utilizacao, p_espera, m)
+
+print("E[n]", round(n_jobs, 2))
+
+n_fila = num_medio_jobs_fila(utilizacao, p_espera)
+
+print("E[nq]", round(n_fila, 2))
+
+temp_resp = tempo_medio_resposta(taxa_servico, utilizacao, p_espera, m)
+
+print("E[r]", round(temp_resp, 2))
+
+q_perc = q_percentil_tempo_espera(taxa_servico, utilizacao, p_espera, m, 90)
+
+print("Wq", round(q_perc, 2))
