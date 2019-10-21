@@ -24,7 +24,7 @@ def pN_jobs_mmm(intensidade_de_trafego_mmm, p0, n, m):
 def p0_jobs(intensidade_de_trafego_mmm, m):
     return 1 / (1 + (
             ((m * intensidade_de_trafego_mmm) ** m) / (math.factorial(m) * (1 - intensidade_de_trafego_mmm))) + sum(
-        [((m * intensidade_de_trafego_mmm) ** n) / (math.factorial(n)) for n in range(m)]))
+        [((m * intensidade_de_trafego_mmm) ** n) / (math.factorial(n)) for n in range(1, m)]))
 
 
 def proba_espera(intensidade_de_trafego_mmm, p0, m):
@@ -59,8 +59,17 @@ def tempo_medio_resposta(taxa_servico_mmm, intensidade_de_trafego_mmm, proba_esp
     return (1 / taxa_servico_mmm) * (1 + proba_espera / (m * (1 - intensidade_de_trafego_mmm)))
 
 
+def var_tempo_medio_resposta(taxa_servico_mmm, intensidade_de_trafego_mmm, proba_espera, m):
+    return (1 / (taxa_servico_mmm ** 2) * (
+            1 + ((proba_espera * (2 - proba_espera)) / ((m ** 2) * ((1 - intensidade_de_trafego_mmm) ** 2)))))
+
+
 def tempo_medio_espera(proba_espera, intensidade_de_trafego, taxa_de_servico, m):
     return proba_espera / (m * taxa_de_servico * (1 - intensidade_de_trafego))
+
+
+def var_tempo_medio_espera(proba_espera, intensidade_de_trafego, taxa_de_servico, m):
+    return
 
 
 def cdf_tempo_resp(taxa_de_servico, temp_resp, intensidade_de_trafego, proba_espera, m):
@@ -79,17 +88,21 @@ def q_percentil_tempo_espera(taxa_servico, intensidade_de_trafego, proba_espera,
     return max(0, calc)
 
 
-taxa_chegada = 30
+def q_percentil_tempo_resposta(temp_resp, q):
+    return temp_resp * math.log(100 / (100 - q))
 
-taxa_servico = 1 / 0.05
 
-m = 3
+taxa_chegada = 0.167 / 2
+
+taxa_servico = 0.05
+
+m = 6
 
 utilizacao = intensidade_de_trafego_mmm(taxa_chegada, taxa_servico, m)
 
 print("Utilização:", round(utilizacao, 2))
 
-p0 = p0_jobs(utilizacao, 3)
+p0 = p0_jobs(utilizacao, m)
 
 print("p0:", round(p0, 2))
 
@@ -109,6 +122,14 @@ temp_resp = tempo_medio_resposta(taxa_servico, utilizacao, p_espera, m)
 
 print("E[r]", round(temp_resp, 2))
 
+temp_esp = tempo_medio_espera(p_espera, utilizacao, taxa_servico, m)
+
+print("E[w]", round(temp_esp, 2))
+
 q_perc = q_percentil_tempo_espera(taxa_servico, utilizacao, p_espera, m, 90)
 
 print("Wq", round(q_perc, 2))
+
+var_temp_resp = var_tempo_medio_resposta(taxa_servico, utilizacao, p_espera, m)
+
+print("Var[r]:", round(var_temp_resp, 3))
