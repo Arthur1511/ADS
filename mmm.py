@@ -82,6 +82,10 @@ def cdf_tempo_resp(taxa_de_servico, temp_resp, intensidade_de_trafego, proba_esp
             -taxa_de_servico * temp_resp)
 
 
+def cdf_tempo_esp(taxa_de_servico, temp_esp, intensidade_de_trafego, proba_espera, m):
+    return 1 - proba_espera * math.exp(-m * taxa_de_servico * (1 - intensidade_de_trafego) * temp_esp)
+
+
 def q_percentil_tempo_espera(taxa_servico, intensidade_de_trafego, proba_espera, m, q):
     calc = (1 / (m * taxa_servico * (1 - intensidade_de_trafego))) * math.log((100 * proba_espera) / (100 - q))
 
@@ -92,9 +96,9 @@ def q_percentil_tempo_resposta(temp_resp, q):
     return temp_resp * math.log(100 / (100 - q))
 
 
-taxa_chegada = 0.167 / 2
+taxa_chegada = 0.6
 
-taxa_servico = 0.05
+taxa_servico = 0.2
 
 m = 6
 
@@ -106,7 +110,11 @@ p0 = p0_jobs(utilizacao, m)
 
 print("p0:", round(p0, 2))
 
+pn = pN_jobs_mmm(utilizacao, p0, m, m)
+
 p_espera = proba_espera(utilizacao, p0, m)
+
+print("pn:", round(p0, 2))
 
 print("Probabilidade de Espera:", round(p_espera, 2))
 
@@ -126,10 +134,13 @@ temp_esp = tempo_medio_espera(p_espera, utilizacao, taxa_servico, m)
 
 print("E[w]", round(temp_esp, 2))
 
-q_perc = q_percentil_tempo_espera(taxa_servico, utilizacao, p_espera, m, 90)
+q_perc = q_percentil_tempo_espera(taxa_servico, utilizacao, p_espera, m, 95)
 
 print("Wq", round(q_perc, 2))
 
 var_temp_resp = var_tempo_medio_resposta(taxa_servico, utilizacao, p_espera, m)
 
 print("Var[r]:", round(var_temp_resp, 3))
+
+cdf_esp = cdf_tempo_esp(taxa_servico, 1, utilizacao, p_espera, m)
+print("CDF Espera:", round(cdf_esp, 2))

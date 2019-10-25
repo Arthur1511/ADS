@@ -37,7 +37,7 @@ def num_medio_jobs_fila(intensidade_de_trafego, p0):
     return (intensidade_de_trafego ** 2) / p0
 
 
-def tempo_medio_espera_fila(temp_resp):
+def tempo_medio_espera_fila(temp_resp, intensidade_de_trafego):
     return intensidade_de_trafego * temp_resp
 
 
@@ -87,3 +87,4 @@ print("P0:", p0)
 print("q percentil tempo de resposta:", round(q_perc_temp_resp(90, taxa_servico, p0), 2))
 
 print("q percentil tempo de espera:", round(q_perc_temp_espera(90, taxa_servico, p0, intens_traf), 2))
+

@@ -14,7 +14,7 @@ def intensidade_trafego(taxa_chegada, taxa_servico, m):
 
 def pN_jobs(intensidade_trafego, p0, n, m, b):
     if m == 1:
-        if n < b:
+        if n <= b:
             if intensidade_trafego != 1:
                 return ((1 - intensidade_trafego) / (1 - intensidade_trafego ** (b + 1))) * intensidade_trafego ** n
             else:
@@ -76,13 +76,13 @@ def perda(taxa_chegada, taxa_chegada_esfetiva):
     return taxa_chegada - taxa_chegada_esfetiva
 
 
-taxa_chegada = 30
+taxa_chegada = 3
 
-taxa_servico = 1 / 0.05
+taxa_servico = 240*2
 
-m = 3
+m = 1
 
-b = 4
+b = 3
 
 intensidade_traf = intensidade_trafego(taxa_chegada, taxa_servico, m)
 
@@ -92,10 +92,11 @@ p0 = p0_jobs(intensidade_traf, m, b)
 
 print("P0:", round(p0, 2))
 
-for n in range(1, 5):
-    pn = pN_jobs(intensidade_traf, p0, n, m, b)
+# for n in range(1, 5):
+#     pn = pN_jobs(intensidade_traf, p0, n, m, b)
+#
+#     print("P%i:" % (n), round(pn, 2))
 
-    print("P%i:" % n, round(pn, 2))
 
 num_jobs = num_jobs_sistema(intensidade_traf, p0, m, b)
 
@@ -119,3 +120,5 @@ print("Utilização:", round(utili, 2))
 temp_resp = tempo_medio_resposta(taxa_efetiva, num_jobs)
 
 print("Tempo de resposta:", round(temp_resp, 2))
+
+# print(pN_jobs(intensidade_traf, p0, , m, b))
