@@ -1,9 +1,9 @@
 import numpy as np
 
-lambd = [3, 3, 3, 3]
-mi = [240, 240, 240, 240]
+lambd = [5 for i in range(10)]
+mi = [i * 1 / 2.5 for i in range(1, 11)]
 
-K = 4
+K = 10
 
 Po = 0.0
 Pk = []

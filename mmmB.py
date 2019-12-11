@@ -44,7 +44,7 @@ def num_jobs_sistema(intensidade_trafego, p0, m, b):
         return intensidade_trafego / (1 - intensidade_trafego) - ((b - 1) * intensidade_trafego ** (b + 1)) / (
                 1 - intensidade_trafego ** (b + 1))
     else:
-        return sum([(n * pN_jobs(intensidade_trafego, p0, n, m, b)) for n in range(1, b)])
+        return sum([(n * pN_jobs(intensidade_trafego, p0, n, m, b)) for n in range(1, b+1)])
 
 
 def num_jobs_fila(intensidade_trafego, p0, m, b):
@@ -76,13 +76,13 @@ def perda(taxa_chegada, taxa_chegada_esfetiva):
     return taxa_chegada - taxa_chegada_esfetiva
 
 
-taxa_chegada = 3
+taxa_chegada = 5
 
-taxa_servico = 240*2
+taxa_servico = 1/2.5
 
-m = 1
+m = 10
 
-b = 3
+b = 10
 
 intensidade_traf = intensidade_trafego(taxa_chegada, taxa_servico, m)
 
