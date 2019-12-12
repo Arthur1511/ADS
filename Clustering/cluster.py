@@ -17,10 +17,10 @@ def betacv(distancia_centroide, centroides, rotulos, y):
     desvio_distancia_media_intra = [distancia_centroide[y == n, n].std() for n in rotulos]
 
     # media dos desvios intra
-    desvio_medio = np.mean(desvio_distancia_media_intra)
+    desvio_medio_intra = np.mean(desvio_distancia_media_intra)
 
     # cv intra cluster
-    cv_intra = desvio_medio / media_distancia_media_intra
+    cv_intra = desvio_medio_intra / media_distancia_media_intra
 
     # distancias inter clusters
     distancia_inter = pairwise_distances(centroides, centroides)
@@ -44,6 +44,50 @@ def betacv(distancia_centroide, centroides, rotulos, y):
     beta_cv = cv_intra / cv_inter
 
     return beta_cv
+
+
+def betacv2(data, labels, metric='euclidean'):
+    distances = pairwise_distances(data, metric=metric)
+    n = labels.shape[0]
+    A = np.array([intra_cluster_distance(distances[i], labels, i)
+                  for i in range(n)])
+    B = np.array([inter_cluster_distance(distances[i], labels, i)
+                  for i in range(n)])
+    a = np.sum(A)
+    b = np.sum(B)
+    labels_unq = np.unique(labels)
+    members = np.array([member_count(labels, i) for i in labels_unq])
+    N_in = np.array([i*(i-1) for i in members])
+    n_in = np.sum(N_in)
+    N_out = np.array([i*(n-i) for i in members])
+    n_out = np.sum(N_out)
+    betacv = (a/n_in)/(b/n_out)
+    print('intra:', a)
+    print('inter:', b)
+    print('n_in :', n_in)
+    print('n_out:', n_out)
+    return betacv
+
+
+def intra_cluster_distance(distances_row, labels, i):
+    mask = labels == labels[i]
+    mask[i] = False
+    if not np.any(mask):
+        # cluster of size 1
+        return 0
+    a = np.sum(distances_row[mask])
+    return a
+
+
+def inter_cluster_distance(distances_row, labels, i):
+    mask = labels != labels[i]
+    b = np.sum(distances_row[mask])
+    return b
+
+
+def member_count(labels, i):
+    mask = labels == i
+    return len(labels[mask])
 
 
 data = pd.read_excel('Clustering/DBMS-Performance-Monitor-Log.xls', index_col=0, header=0).drop('ID', axis=1)
@@ -77,7 +121,8 @@ for n in range(k_min, k_max + 1):
 
     distancia_centroide = cluster.fit_transform(data_cluster)
 
-    beta_cv = betacv(distancia_centroide, centroides, rotulos, y)
+    # beta_cv = betacv(distancia_centroide, centroides, rotulos, y)
+    beta_cv = betacv2(data_cluster, y)
     lista_betacv.append(beta_cv)
     print("betacv para", n, ':', beta_cv)
 
@@ -87,7 +132,7 @@ plt.ylabel('Beta-cv')
 plt.plot([i for i in range(k_min, k_max + 1)], lista_betacv, '-o')
 plt.show()
 
-cluster = KMeans(n_clusters=3, random_state=10)
+cluster = KMeans(n_clusters=17, random_state=10)
 y = cluster.fit_predict(data_cluster)
 rotulos = np.unique(y)
 
