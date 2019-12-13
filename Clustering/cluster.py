@@ -91,17 +91,53 @@ def member_count(labels, i):
 
 
 data = pd.read_excel('Clustering/DBMS-Performance-Monitor-Log.xls', index_col=0, header=0).drop('ID', axis=1)
+print("Max-Max/Min-Min:", data.max().max()/data.min().min())
+
+print("DADOS ORIGINAIS")
+print(data.describe())
+print("Coeficiente de Variação:")
+print(data.std()/data.mean())
+print("Range:")
+print(data.max()-data.min())
 
 data.hist()
+plt.suptitle("Histogramas")
 plt.show()
 
 data.hist(cumulative=True, density=True, bins=50)
+plt.suptitle("CDF")
 plt.show()
 
 data.boxplot()
+plt.suptitle("Boxsplot")
 plt.show()
 
-data_norm = pd.DataFrame(StandardScaler().fit_transform(X=data.apply(func=np.log10)), columns=data.columns)
+data_log = data.apply(func=np.log10)
+
+print("DADOS COM LOG APLICADO")
+print(data_log.describe())
+print("Coeficiente de Variação:")
+print(data_log.std()/data.mean())
+print("Range:")
+print(data_log.max()-data.min())
+
+data_log.hist()
+plt.suptitle("Histogramas Data Log")
+plt.show()
+
+data_log.hist(cumulative=True, density=True, bins=50)
+plt.suptitle("CDF Data Log")
+plt.show()
+
+data_log.boxplot()
+plt.suptitle("Boxsplot Data Log")
+plt.show()
+
+
+data_log = data_log.sample(n=100, random_state=10)
+
+data_norm = pd.DataFrame(StandardScaler().fit_transform(X=data_log), columns=data.columns)
+
 
 data_cluster = data_norm.drop(['Disk_1', 'Disk_2'], axis=1)
 
@@ -132,22 +168,27 @@ plt.ylabel('Beta-cv')
 plt.plot([i for i in range(k_min, k_max + 1)], lista_betacv, '-o')
 plt.show()
 
-cluster = KMeans(n_clusters=3, random_state=10)
+cluster = KMeans(n_clusters=8, random_state=10)
 y = cluster.fit_predict(data_cluster)
 rotulos = np.unique(y)
 
 for n in rotulos:
     print("Sumarização Cluster", n)
+    print("Componente mais representativo (centroide):", cluster.cluster_centers_[n])
     print(data[y == n].describe())
+    print("Coeficiente de Variação:", data[y == n].max().max() / data[y == n].min().min())
+    print("Range:")
+    print(data[y == n].max() - data[y == n].min())
+    print("\n\n")
 
     data[y == n].hist()
-    plt.title('Histograma cluster ' + str(n))
+    plt.suptitle('Histograma cluster ' + str(n))
     plt.show()
 
     data[y == n].hist(cumulative=True, density=True, bins=50)
-    plt.title('CDF cluster ' + str(n))
+    plt.suptitle('CDF cluster ' + str(n))
     plt.show()
 
     data[y == n].boxplot()
-    plt.title('BoxPlot cluster ' + str(n))
+    plt.suptitle('BoxPlot cluster ' + str(n))
     plt.show()
