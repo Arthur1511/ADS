@@ -132,7 +132,7 @@ plt.ylabel('Beta-cv')
 plt.plot([i for i in range(k_min, k_max + 1)], lista_betacv, '-o')
 plt.show()
 
-cluster = KMeans(n_clusters=17, random_state=10)
+cluster = KMeans(n_clusters=3, random_state=10)
 y = cluster.fit_predict(data_cluster)
 rotulos = np.unique(y)
 
