@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import pairwise_distances
+from sklearn.metrics import pairwise_distances, euclidean_distances
 from sklearn.cluster import KMeans
 
 
@@ -90,6 +90,38 @@ def member_count(labels, i):
     return len(labels[mask])
 
 
+def betacv3(T, centroide, label_cluster, k):
+    # centroide = kmeans.cluster_centers_  # centróides
+    distances = []  # vetor das distâncias par a par entre todos os clusters
+    # Calculando as distâncias inter-clusters onde k é o número de clusters
+    for i in range(k):
+        for j in range(i + 1, k):
+            distances.append(euclidean_distances([centroide[i]], [centroide[j]]))
+    avg = np.mean(distances)
+    std = np.std(distances)
+    cv_inter = float(std / avg)
+    """
+    Computing the intra-cluster distances: a matriz T representa todos os indivíduos da base
+    """
+    # label_cluster = kmeans.labels_  # rótulo dos clusters
+    costs = []
+    for l in range(k):
+        cluster = T[label_cluster == l]
+        # calculando as distâncias entre cada indivíduo de um cluster com relação ao seu centróide
+        distances = euclidean_distances(cluster, [centroide[l]])
+        if len(distances) > 1:
+            avg = np.mean(distances)
+            std = np.std(distances)
+            cv_intra = np.float(std / avg)
+            costs.append(cv_intra)
+        else:
+            costs.append(0.)
+    cv_intra = np.mean(costs)  # média dos coeficientes de variação intra-cluster de cada cluster
+    Beta_CV = cv_intra / cv_inter
+
+    return Beta_CV
+
+
 data = pd.read_excel('Clustering/DBMS-Performance-Monitor-Log.xls', index_col=0, header=0).drop('ID', axis=1)
 print("Max-Max/Min-Min:", data.max().max()/data.min().min())
 
@@ -158,7 +190,8 @@ for n in range(k_min, k_max + 1):
     distancia_centroide = cluster.fit_transform(data_cluster)
 
     # beta_cv = betacv(distancia_centroide, centroides, rotulos, y)
-    beta_cv = betacv2(data_cluster, y)
+    # beta_cv = betacv2(data_cluster, y)
+    beta_cv = betacv3(data_cluster, centroides, y, n)
     lista_betacv.append(beta_cv)
     print("betacv para", n, ':', beta_cv)
 
